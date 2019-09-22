@@ -27,14 +27,19 @@ dbConnection.connect( function(err){
 
 
 app.get('/', function( req, res){
-	res.send({'status':'success','message':'Welcome to nodejs application'});
+	res.status(200).send({'status':'success','message':'Welcome to nodejs application'});
 });
 
 app.get('/users', function(req, res){
 	console.log('users listing');
-	dbConnection.query('SELECT * FROM users WHERE 1', function(err, rows, fields ){
+	dbConnection.query('SELECT * FROM users WHERE 1', function(err, results, fields ){
 		if(!err){
-			res.send(rows);
+			if(results[0]){
+				res.status(200).send(results);
+			}
+			else{
+				res.status(200).send({'message':'No record(s) found'});
+			}
 		}
 		else{
 			console.log(err);
@@ -46,11 +51,11 @@ app.get('/users/:id', function(req, res){
 	console.log('user details');
 	dbConnection.query('SELECT * FROM users WHERE id = ?', [req.params.id], function(err, rows, fields){
 		if(!err){
-			if(rows){
-				res.send(rows);
+			if(rows[0]){
+				res.status(200).send(rows);
 			}
 			else{
-				res.send({'message':'No records found'});
+				res.status(200).send({'message':'No record found'});
 			}
 		}
 		else{
@@ -70,12 +75,19 @@ app.put('/users/edit/:id', function(req, res){
 });
 
 app.delete('/users/delete/:id', function(req, res){
-	console.log('users delete');
-	res.send({'status':'success','message':'Delete user'});
+	console.log('deleting...user + ' + req.params.id);
+	dbConnection.query('DELETE FROM users WHERE id = ?', [req.params.id] , function(err){
+		if(!err){
+			res.status(200).send({'message':'User deleted successfully'});
+		}
+		else{
+			console.log(err);
+		}
+	});
 });
 
 app.get('*', function(req, res){
-	res.send({'error':'Sorry, route not found!'});
+	res.status(404).send({'error':'sorry, route not found!'});
 });
 
 //dbConnection.end();
