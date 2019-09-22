@@ -1,16 +1,20 @@
 const express 	= require('express');
 var mysql 		= require('mysql');
 const app 		= express();
+var bodyparser	= require('body-parser');
 const port 		= 3000;
 
 app.listen(port, () => console.log(`Node server is listening on port no ${port}!`));
 
-var dbConnection = mysql.createConnection({
+var dbConfiguration = {
 	'host':'127.0.0.1',
 	'user':'root',
 	'pass':'',
-	'database':'mynodejs'
-});
+	'database':'mynodejs',
+	'timezone':'local'
+};
+
+var dbConnection = mysql.createConnection(dbConfiguration);
 
 dbConnection.connect( function(err){
 	if(err){
@@ -28,7 +32,31 @@ app.get('/', function( req, res){
 
 app.get('/users', function(req, res){
 	console.log('users listing');
-	res.send({'status':'success','message':'User listing'});
+	dbConnection.query('SELECT * FROM users WHERE 1', function(err, rows, fields ){
+		if(!err){
+			res.send(rows);
+		}
+		else{
+			console.log(err);
+		}
+	});
+});
+
+app.get('/users/:id', function(req, res){
+	console.log('user details');
+	dbConnection.query('SELECT * FROM users WHERE id = ?', [req.params.id], function(err, rows, fields){
+		if(!err){
+			if(rows){
+				res.send(rows);
+			}
+			else{
+				res.send({'message':'No records found'});
+			}
+		}
+		else{
+			console.log(err);
+		}
+	});
 });
 
 app.post('/users/add', function(req, res){
@@ -46,11 +74,12 @@ app.delete('/users/delete/:id', function(req, res){
 	res.send({'status':'success','message':'Delete user'});
 });
 
-dbConnection.end();
-
 app.get('*', function(req, res){
-	res.send({'Error':'Sorry, route not found!'});
+	res.send({'error':'Sorry, route not found!'});
 });
+
+//dbConnection.end();
+
 
 // app.use( function(req, res, next){
 	
