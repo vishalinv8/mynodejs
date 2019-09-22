@@ -7,11 +7,12 @@ const port 		= 3000;
 app.listen(port, () => console.log(`Node server is listening on port no ${port}!`));
 
 var dbConfiguration = {
-	'host':'127.0.0.1',
-	'user':'root',
-	'pass':'',
-	'database':'mynodejs',
-	'timezone':'local'
+	host:'127.0.0.1',
+	user:'root',
+	pass:'',
+	database:'mynodejs',
+	timezone:'local',
+	multipleStatments:true,
 };
 
 var dbConnection = mysql.createConnection(dbConfiguration);
@@ -32,7 +33,7 @@ app.get('/', function( req, res){
 
 app.get('/users', function(req, res){
 	console.log('users listing');
-	dbConnection.query('SELECT * FROM users WHERE 1', function(err, results, fields ){
+	dbConnection.query('SELECT id,name,email,date FROM users WHERE 1', function(err, results, fields ){
 		if(!err){
 			if(results[0]){
 				res.status(200).send(results);
@@ -49,7 +50,7 @@ app.get('/users', function(req, res){
 
 app.get('/users/:id', function(req, res){
 	console.log('user details');
-	dbConnection.query('SELECT * FROM users WHERE id = ?', [req.params.id], function(err, rows, fields){
+	dbConnection.query('SELECT id,name,email,date FROM users WHERE id = ? LIMIT 1', [req.params.id], function(err, rows, fields){
 		if(!err){
 			if(rows[0]){
 				res.status(200).send(rows);
@@ -64,14 +65,23 @@ app.get('/users/:id', function(req, res){
 	});
 });
 
-app.post('/users/add', function(req, res){
-	console.log('users add');
-	res.send({'status':'success','message':'Add user'});
-});
-
-app.put('/users/edit/:id', function(req, res){
-	console.log('users edit');
-	res.send({'status':'success','message':'Edit user'});
+app.post('/users', function(req, res){
+	
+	console.log(req.body.Name);
+	console.log(req.body.Userid);
+	
+	let empData = req.body;
+	var sqlStatement = "SET @UserId = 0; SET @Name = ?; SET @Email = ?; SET @Date = ?;\
+	call mynodejs.UserAddorEdit(@UserId, @Name, @Email, @Date);";
+	
+	dbConnection.query(sqlStatement,[empData.Userid, empData.Name, empData.email, empData.date], function(err, results, fields){
+		if(!err){
+			console.log('Success');
+		}
+		else{
+			console.log('error');
+		}
+	});	
 });
 
 app.delete('/users/delete/:id', function(req, res){
