@@ -1,13 +1,30 @@
-const express = require('express');
-
-const app = express();
-const port = 3000;
+const express 	= require('express');
+var mysql 		= require('mysql');
+const app 		= express();
+const port 		= 3000;
 
 app.listen(port, () => console.log(`Node server is listening on port no ${port}!`));
 
-app.get('/', (req, res) => 
-	res.send({'status':'success','message':'Welcome to nodejs application'})
-);
+var dbConnection = mysql.createConnection({
+	'host':'127.0.0.1',
+	'user':'root',
+	'pass':'',
+	'database':'mynodejs'
+});
+
+dbConnection.connect( function(err){
+	if(err){
+		console.error('Connection error : ' + err.stack);
+		return;
+	}
+	console.log('Connect success : ' + dbConnection.threadId);
+});
+
+
+
+app.get('/', function( req, res){
+	res.send({'status':'success','message':'Welcome to nodejs application'});
+});
 
 app.get('/users', function(req, res){
 	console.log('users listing');
@@ -29,6 +46,11 @@ app.delete('/users/delete/:id', function(req, res){
 	res.send({'status':'success','message':'Delete user'});
 });
 
+dbConnection.end();
+
+app.get('*', function(req, res){
+	res.send({'Error':'Sorry, route not found!'});
+});
 
 // app.use( function(req, res, next){
 	
@@ -54,6 +76,4 @@ app.delete('/users/delete/:id', function(req, res){
 // });
 
 
-app.get('*', function(req, res){
-	res.send({'Error':'Sorry, route not found!'});
-});
+
