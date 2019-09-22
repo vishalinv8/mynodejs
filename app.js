@@ -6,27 +6,27 @@ const port = 3000;
 app.listen(port, () => console.log(`Node server is listening on port no ${port}!`));
 
 app.get('/', (req, res) => 
-	res.send({'status':'success','message'=>'Welcome to nodejs application'});
-)
+	res.send({'status':'success','message':'Welcome to nodejs application'})
+);
 
 app.get('/users', function(req, res){
 	console.log('users listing');
-	res.send({'status':'success','message'=>'User listing'});
+	res.send({'status':'success','message':'User listing'});
 });
 
 app.post('/users/add', function(req, res){
 	console.log('users add');
-	res.send({'status':'success','message'=>'Add user'});
+	res.send({'status':'success','message':'Add user'});
 });
 
 app.put('/users/edit/:id', function(req, res){
 	console.log('users edit');
-	res.send({'status':'success','message'=>'Edit user'});
+	res.send({'status':'success','message':'Edit user'});
 });
 
 app.delete('/users/delete/:id', function(req, res){
 	console.log('users delete');
-	res.send({'status':'success','message'=>'Delete user'});
+	res.send({'status':'success','message':'Delete user'});
 });
 
 
