@@ -1,7 +1,7 @@
 const express 	= require('express');
 var mysql 		= require('mysql');
 const app 		= express();
-var bodyparser	= require('body-parser');
+var bodyParser	= require('body-parser');
 const port 		= 3000;
 
 app.listen(port, () => console.log(`Node server is listening on port no ${port}!`));
@@ -25,7 +25,7 @@ dbConnection.connect( function(err){
 	console.log('Connect success : ' + dbConnection.threadId);
 });
 
-
+app.use(bodyParser.json());
 
 app.get('/', function( req, res){
 	res.status(200).send({'status':'success','message':'Welcome to nodejs application'});
@@ -66,20 +66,16 @@ app.get('/users/:id', function(req, res){
 });
 
 app.post('/users', function(req, res){
-	
-	console.log(req.body.Name);
-	console.log(req.body.Userid);
-	
 	let empData = req.body;
-	var sqlStatement = "SET @UserId = 0; SET @Name = ?; SET @Email = ?; SET @Date = ?;\
+	var sqlStatement = "SET @UserId = ?; SET @Name = ?; SET @Email = ?; SET @Date = ?;\
 	call mynodejs.UserAddorEdit(@UserId, @Name, @Email, @Date);";
-	
 	dbConnection.query(sqlStatement,[empData.Userid, empData.Name, empData.email, empData.date], function(err, results, fields){
 		if(!err){
 			console.log('Success');
 		}
 		else{
-			console.log('error');
+			
+			console.log('error'+err);
 		}
 	});	
 });
